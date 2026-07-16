@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+sqlalchemy
+playwright
+beautifulsoup4
+pydantic
