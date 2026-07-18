@@ -77,18 +77,30 @@ def get_tenders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @app.post("/api/scrape")
 def trigger_scrape(agency: str, db: Session = Depends(get_db)):
-    if agency.lower() == "eprocure":
+    agency_lower = agency.lower()
+    
+    if agency_lower == "eprocure":
         from .scrapers.eprocure import EProcureScraper
         scraper = EProcureScraper()
-        tenders = scraper.scrape_active_tenders()
+    elif agency_lower == "nhai":
+        from .scrapers.nhai import NHAIScraper
+        scraper = NHAIScraper()
+    elif agency_lower == "cpwd":
+        from .scrapers.cpwd import CPWDScraper
+        scraper = CPWDScraper()
+    elif agency_lower == "kpwd":
+        from .scrapers.kpwd import KPWDScraper
+        scraper = KPWDScraper()
+    else:
+        return {"message": f"Scraping logic for {agency} not yet implemented"}
         
-        # Save to DB
-        for t in tenders:
-            existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
-            if not existing:
-                db_tender = models.Tender(**t)
-                db.add(db_tender)
-        db.commit()
-        return {"message": f"Scraped {len(tenders)} tenders from {agency}"}
+    tenders = scraper.scrape_active_tenders()
     
-    return {"message": f"Scraping logic for {agency} not yet implemented"}
+    # Save to DB
+    for t in tenders:
+        existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
+        if not existing:
+            db_tender = models.Tender(**t)
+            db.add(db_tender)
+    db.commit()
+    return {"message": f"Scraped {len(tenders)} tenders from {agency}"}
