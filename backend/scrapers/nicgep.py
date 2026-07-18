@@ -49,7 +49,9 @@ class NICGEPScraper(BaseScraper):
                         "status": "Active"
                     })
             print(f"Successfully scraped {len(tenders)} {self.agency_name} tenders.")
+            if len(tenders) == 0:
+                raise Exception(f"Failed to find activeTenders table. The site might be blocking cloud IPs or the page structure changed. HTML snippet: {html[:500]}")
             return tenders
         except Exception as e:
             print(f"Error scraping {self.agency_name}: {e}")
-            return []
+            raise e

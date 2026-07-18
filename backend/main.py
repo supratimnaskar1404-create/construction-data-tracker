@@ -94,13 +94,16 @@ def trigger_scrape(agency: str, db: Session = Depends(get_db)):
     else:
         return {"message": f"Scraping logic for {agency} not yet implemented"}
         
-    tenders = scraper.scrape_active_tenders()
-    
-    # Save to DB
-    for t in tenders:
-        existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
-        if not existing:
-            db_tender = models.Tender(**t)
-            db.add(db_tender)
-    db.commit()
-    return {"message": f"Scraped {len(tenders)} tenders from {agency}"}
+    try:
+        tenders = scraper.scrape_active_tenders()
+        
+        # Save to DB
+        for t in tenders:
+            existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
+            if not existing:
+                db_tender = models.Tender(**t)
+                db.add(db_tender)
+        db.commit()
+        return {"message": f"Scraped {len(tenders)} tenders from {agency}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

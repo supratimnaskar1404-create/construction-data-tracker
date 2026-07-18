@@ -35,12 +35,17 @@ function App() {
   const handleScrape = async () => {
     setLoading(true);
     try {
-      await fetch(`${apiUrl}/api/scrape?agency=eprocure`, {
+      const response = await fetch(`${apiUrl}/api/scrape?agency=eprocure`, {
         method: 'POST',
       });
+      if (!response.ok) {
+          const errorData = await response.json();
+          alert(`Scrape failed: ${errorData.detail || 'Unknown error'}`);
+      }
       await fetchTenders();
     } catch (error) {
       console.error('Failed to trigger scrape:', error);
+      alert(`Scrape failed: ${error}`);
     } finally {
       setLoading(false);
     }
