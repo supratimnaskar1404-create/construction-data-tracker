@@ -103,7 +103,12 @@ def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_
             tenders = scraper.scrape_active_tenders()
         
         # Save to DB
+        seen_refs = set()
         for t in tenders:
+            if t["reference_no"] in seen_refs:
+                continue
+            seen_refs.add(t["reference_no"])
+            
             existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
             if not existing:
                 db_tender = models.Tender(**t)

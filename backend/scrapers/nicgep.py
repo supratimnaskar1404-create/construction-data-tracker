@@ -101,7 +101,7 @@ class NICGEPScraper(BaseScraper):
                 
                 tenders.append({
                     "title": f"Construction Phase {i} - {target_date.strftime('%B')} Works",
-                    "reference_no": f"{self.agency_name}/AOC/{target_date.year}/{target_date.month}/{i}",
+                    "reference_no": f"{self.agency_name}/AOC/{target_date.year}/{target_date.month}/{i}-{random.randint(10000, 99999)}",
                     "agency": self.agency_name,
                     "publishing_date": (target_date - timedelta(days=45)).date(),
                     "closing_date": (target_date - timedelta(days=15)).date(),
