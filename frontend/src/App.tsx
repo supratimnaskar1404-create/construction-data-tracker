@@ -8,6 +8,8 @@ interface Tender {
   agency: string;
   publishing_date: string;
   status: string;
+  awardee?: string;
+  award_value?: number;
 }
 
 function App() {
@@ -32,10 +34,10 @@ function App() {
     }
   };
 
-  const handleScrape = async () => {
+  const handleScrape = async (monthsBack: number = 0) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/scrape?agency=eprocure`, {
+      const response = await fetch(`${apiUrl}/api/scrape?agency=eprocure&months_back=${monthsBack}`, {
         method: 'POST',
       });
       if (!response.ok) {
@@ -55,9 +57,14 @@ function App() {
     <div className="app-container">
       <div className="header">
         <h1>Construction Data Tracker</h1>
-        <button className="btn" onClick={handleScrape} disabled={loading}>
-          {loading ? 'Scraping...' : 'Scrape eProcure'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn" onClick={() => handleScrape(0)} disabled={loading}>
+              {loading ? 'Scraping...' : 'Scrape Active'}
+            </button>
+            <button className="btn" onClick={() => handleScrape(12)} disabled={loading} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+              {loading ? 'Scraping...' : 'Fetch 12 Months History'}
+            </button>
+        </div>
       </div>
 
       <div className="glass-panel">
@@ -71,12 +78,13 @@ function App() {
               <th>Title</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Awardee</th>
             </tr>
           </thead>
           <tbody>
             {tenders.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
                   No tenders found. Click scrape to fetch data.
                 </td>
               </tr>
@@ -93,6 +101,7 @@ function App() {
                       {tender.status}
                     </span>
                   </td>
+                  <td>{tender.awardee || '-'}</td>
                 </tr>
               ))
             )}

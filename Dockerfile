@@ -4,6 +4,9 @@ FROM mcr.microsoft.com/playwright/python:v1.61.0-jammy
 # Set the working directory in the container
 WORKDIR /app
 
+# Install Tesseract OCR for CAPTCHA solving
+RUN apt-get update && apt-get install -y tesseract-ocr && rm -rf /var/lib/apt/lists/*
+
 # Copy the requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

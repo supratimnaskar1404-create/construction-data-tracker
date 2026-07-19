@@ -37,3 +37,5 @@ class Tender(Base):
     closing_date = Column(Date, nullable=True)
     source_url = Column(String, nullable=True)
     status = Column(String, default="Active")
+    awardee = Column(String, nullable=True)
+    award_value = Column(Float, nullable=True)

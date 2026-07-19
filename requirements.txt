@@ -4,3 +4,5 @@ sqlalchemy
 playwright
 beautifulsoup4
 pydantic
+pytesseract
+Pillow

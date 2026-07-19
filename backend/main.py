@@ -52,6 +52,8 @@ class TenderSchema(BaseModel):
     closing_date: Optional[date]
     source_url: Optional[str]
     status: str
+    awardee: Optional[str] = None
+    award_value: Optional[float] = None
 
     class Config:
         from_attributes = True
@@ -76,7 +78,7 @@ def get_tenders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return tenders
 
 @app.post("/api/scrape")
-def trigger_scrape(agency: str, db: Session = Depends(get_db)):
+def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_db)):
     agency_lower = agency.lower()
     
     if agency_lower == "eprocure":
@@ -95,7 +97,10 @@ def trigger_scrape(agency: str, db: Session = Depends(get_db)):
         return {"message": f"Scraping logic for {agency} not yet implemented"}
         
     try:
-        tenders = scraper.scrape_active_tenders()
+        if months_back > 0:
+            tenders = scraper.scrape_awarded_tenders(months_back=months_back)
+        else:
+            tenders = scraper.scrape_active_tenders()
         
         # Save to DB
         for t in tenders:
