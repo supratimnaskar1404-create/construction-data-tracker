@@ -43,7 +43,7 @@ function App() {
   const handleScrape = async (monthsBack: number = 0) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/scrape?agency=eprocure&months_back=${monthsBack}`, {
+      const response = await fetch(`${apiUrl}/api/scrape?agency=all&months_back=${monthsBack}`, {
         method: 'POST',
       });
       if (!response.ok) {

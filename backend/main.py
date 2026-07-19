@@ -79,41 +79,49 @@ def get_tenders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @app.post("/api/scrape")
 def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_db)):
-    agency_lower = agency.lower()
-    
-    if agency_lower == "eprocure":
-        from .scrapers.eprocure import EProcureScraper
-        scraper = EProcureScraper()
-    elif agency_lower == "nhai":
-        from .scrapers.nhai import NHAIScraper
-        scraper = NHAIScraper()
-    elif agency_lower == "cpwd":
-        from .scrapers.cpwd import CPWDScraper
-        scraper = CPWDScraper()
-    elif agency_lower == "kpwd":
-        from .scrapers.kpwd import KPWDScraper
-        scraper = KPWDScraper()
+    agencies_to_scrape = []
+    if agency.lower() == "all":
+        agencies_to_scrape = ["eprocure", "nhai", "cpwd", "kpwd"]
     else:
-        return {"message": f"Scraping logic for {agency} not yet implemented"}
+        agencies_to_scrape = [agency.lower()]
         
-    try:
-        if months_back > 0:
-            tenders = scraper.scrape_awarded_tenders(months_back=months_back)
+    total_scraped = 0
+    for ag in agencies_to_scrape:
+        if ag == "eprocure":
+            from .scrapers.eprocure import EProcureScraper
+            scraper = EProcureScraper()
+        elif ag == "nhai":
+            from .scrapers.nhai import NHAIScraper
+            scraper = NHAIScraper()
+        elif ag == "cpwd":
+            from .scrapers.cpwd import CPWDScraper
+            scraper = CPWDScraper()
+        elif ag == "kpwd":
+            from .scrapers.kpwd import KPWDScraper
+            scraper = KPWDScraper()
         else:
-            tenders = scraper.scrape_active_tenders()
-        
-        # Save to DB
-        seen_refs = set()
-        for t in tenders:
-            if t["reference_no"] in seen_refs:
-                continue
-            seen_refs.add(t["reference_no"])
+            continue
             
-            existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
-            if not existing:
-                db_tender = models.Tender(**t)
-                db.add(db_tender)
-        db.commit()
-        return {"message": f"Scraped {len(tenders)} tenders from {agency}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        try:
+            if months_back > 0:
+                tenders = scraper.scrape_awarded_tenders(months_back=months_back)
+            else:
+                tenders = scraper.scrape_active_tenders()
+            
+            # Save to DB
+            seen_refs = set()
+            for t in tenders:
+                if t["reference_no"] in seen_refs:
+                    continue
+                seen_refs.add(t["reference_no"])
+                
+                existing = db.query(models.Tender).filter(models.Tender.reference_no == t["reference_no"]).first()
+                if not existing:
+                    db_tender = models.Tender(**t)
+                    db.add(db_tender)
+            db.commit()
+            total_scraped += len(tenders)
+        except Exception as e:
+            print(f"Failed to scrape {ag}: {e}")
+            
+    return {"message": f"Scraped {total_scraped} tenders across {len(agencies_to_scrape)} agencies"}
