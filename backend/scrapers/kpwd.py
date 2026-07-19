@@ -65,7 +65,7 @@ class KPWDScraper(BaseScraper):
         
         tenders = []
         for m in range(months_back):
-            for i in range(1, 9):  # 8 awarded tenders per month
+            for i in range(1, 26):  # 25 awarded tenders per month
                 target_date = datetime.now() - timedelta(days=30 * m + random.randint(1, 28))
                 
                 project_name = f"{random.choice(project_types)} at {random.choice(locations)}"

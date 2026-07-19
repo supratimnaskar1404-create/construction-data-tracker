@@ -76,7 +76,7 @@ def get_contractors(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
     return contractors
 
 @app.get("/api/tenders", response_model=List[TenderSchema])
-def get_tenders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_tenders(skip: int = 0, limit: int = 5000, db: Session = Depends(get_db)):
     tenders = db.query(models.Tender).offset(skip).limit(limit).all()
     return tenders
 
