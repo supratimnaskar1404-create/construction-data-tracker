@@ -80,6 +80,15 @@ def get_tenders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     tenders = db.query(models.Tender).offset(skip).limit(limit).all()
     return tenders
 
+@app.post("/api/reset-db")
+def reset_database(db: Session = Depends(get_db)):
+    try:
+        models.Base.metadata.drop_all(bind=engine)
+        models.Base.metadata.create_all(bind=engine)
+        return {"message": "Database reset successfully. Schema updated."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/scrape")
 def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_db)):
     agencies_to_scrape = []

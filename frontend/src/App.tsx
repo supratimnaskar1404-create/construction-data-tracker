@@ -93,6 +93,22 @@ function App() {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
   };
 
+  const handleResetDb = async () => {
+    if (!window.confirm("Are you sure you want to completely wipe and reset the database?")) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/api/reset-db`, { method: 'POST' });
+      if (response.ok) {
+        alert("Database reset successfully! Now click 'Deep Archive Sync' to fetch fresh data.");
+        setTenders([]);
+      }
+    } catch (error) {
+      console.error("Failed to reset DB:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="layout">
       
@@ -108,7 +124,7 @@ function App() {
           <a href="#" className="nav-item"><BarChart3 size={20} /> Market Analytics</a>
           <a href="#" className="nav-item"><Building size={20} /> Contractors</a>
           <div style={{flex: 1}}></div>
-          <a href="#" className="nav-item"><Settings size={20} /> Settings</a>
+          <a href="#" className="nav-item" onClick={handleResetDb}><Settings size={20} /> Reset Database</a>
         </nav>
       </aside>
 
