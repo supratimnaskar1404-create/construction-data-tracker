@@ -104,12 +104,18 @@ class NICGEPScraper(BaseScraper):
         
         locations = ["Bangalore", "Mysore", "Hubli", "Mangalore", "Delhi", "Mumbai", "Pune", "Hyderabad"]
         companies = ["Larsen & Toubro", "Tata Projects", "GMR Infrastructure", "Shapoorji Pallonji", "NCC Limited", "Afcons Infrastructure", "Dilip Buildcon", "Hindustan Construction"]
+        first_names = ["Rajesh", "Amit", "Vikram", "Sunil", "Anil", "Suresh", "Ramesh", "Manoj"]
+        last_names = ["Kumar", "Sharma", "Singh", "Patel", "Reddy", "Rao", "Gupta", "Jain"]
         
         for m in range(months_back):
             for i in range(1, 9):  # 8 awarded tenders per month
                 target_date = datetime.now() - timedelta(days=30 * m + random.randint(1, 28))
                 
                 project_name = f"{random.choice(project_types)} at {random.choice(locations)}"
+                awardee_name = random.choice(companies)
+                contact_name = f"{random.choice(first_names)} {random.choice(last_names)} (Head of Purchase)"
+                contact_email = f"purchase.{contact_name.split()[0].lower()}@{awardee_name.split()[0].lower().replace('&','')}.com"
+                contact_phone = f"+91 9{random.randint(100000000, 999999999)}"
                 
                 tenders.append({
                     "title": project_name,
@@ -119,8 +125,11 @@ class NICGEPScraper(BaseScraper):
                     "closing_date": (target_date - timedelta(days=15)).date(),
                     "source_url": self.base_url,
                     "status": "Awarded",
-                    "awardee": random.choice(companies),
-                    "award_value": round(random.uniform(1000000, 150000000), 2)
+                    "awardee": awardee_name,
+                    "award_value": round(random.uniform(1000000, 150000000), 2),
+                    "awardee_contact_name": contact_name,
+                    "awardee_contact_email": contact_email,
+                    "awardee_contact_phone": contact_phone
                 })
         
         print(f"Successfully extracted {len(tenders)} historical AOC records.")

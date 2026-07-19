@@ -39,3 +39,6 @@ class Tender(Base):
     status = Column(String, default="Active")
     awardee = Column(String, nullable=True)
     award_value = Column(Float, nullable=True)
+    awardee_contact_name = Column(String, nullable=True)
+    awardee_contact_email = Column(String, nullable=True)
+    awardee_contact_phone = Column(String, nullable=True)

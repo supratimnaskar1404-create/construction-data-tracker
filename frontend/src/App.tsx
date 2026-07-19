@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Building, FolderGit2, CheckCircle, Clock, Database, BarChart3, Settings, Download } from 'lucide-react';
+import { Search, Building, FolderGit2, CheckCircle, Clock, Database, BarChart3, Settings, Download, Mail, Phone } from 'lucide-react';
 import './index.css';
 
 interface Tender {
@@ -11,6 +11,9 @@ interface Tender {
   status: string;
   awardee?: string;
   award_value?: number;
+  awardee_contact_name?: string;
+  awardee_contact_email?: string;
+  awardee_contact_phone?: string;
 }
 
 function App() {
@@ -193,7 +196,7 @@ function App() {
                 <th>Agency</th>
                 <th>Date</th>
                 <th>Value</th>
-                <th>Awardee</th>
+                <th>Awardee / Contact</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -216,9 +219,26 @@ function App() {
                     <td style={{fontWeight: 500}}>{formatCurrency(tender.award_value)}</td>
                     <td>
                       {tender.awardee ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Building size={14} color="var(--text-muted)" />
-                          {tender.awardee}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                            <Building size={14} color="var(--primary-color)" />
+                            {tender.awardee}
+                          </div>
+                          {tender.awardee_contact_name && (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                              {tender.awardee_contact_name}
+                            </div>
+                          )}
+                          {tender.awardee_contact_email && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Mail size={10} /> {tender.awardee_contact_email}
+                            </div>
+                          )}
+                          {tender.awardee_contact_phone && (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Phone size={10} /> {tender.awardee_contact_phone}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <span style={{ color: 'var(--text-muted)' }}>-</span>

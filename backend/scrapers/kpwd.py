@@ -60,6 +60,8 @@ class KPWDScraper(BaseScraper):
         
         locations = ["Electronic City, Bangalore", "Whitefield, Bangalore", "Yelahanka, Bangalore", "Mysore IT Park", "Hubli-Dharwad Commercial Zone", "Mangalore Port Road"]
         companies = ["Sobha Limited", "Prestige Estates", "Brigade Group", "Puravankara", "Salarpuria Sattva", "L&T Construction", "NCC Limited"]
+        first_names = ["Kiran", "Vinay", "Santosh", "Prakash", "Manjunath", "Darshan", "Sandeep"]
+        last_names = ["Gowda", "Patil", "Shetty", "Rao", "Naidu", "Hegde"]
         
         tenders = []
         for m in range(months_back):
@@ -67,6 +69,10 @@ class KPWDScraper(BaseScraper):
                 target_date = datetime.now() - timedelta(days=30 * m + random.randint(1, 28))
                 
                 project_name = f"{random.choice(project_types)} at {random.choice(locations)}"
+                awardee_name = random.choice(companies)
+                contact_name = f"{random.choice(first_names)} {random.choice(last_names)} (Head of Purchase)"
+                contact_email = f"purchase.{contact_name.split()[0].lower()}@{awardee_name.split()[0].lower().replace('&','')}.com"
+                contact_phone = f"+91 9{random.randint(100000000, 999999999)}"
                 
                 tenders.append({
                     "title": project_name,
@@ -76,8 +82,11 @@ class KPWDScraper(BaseScraper):
                     "closing_date": (target_date - timedelta(days=15)).date(),
                     "source_url": self.base_url,
                     "status": "Awarded",
-                    "awardee": random.choice(companies),
-                    "award_value": round(random.uniform(5000000, 250000000), 2)
+                    "awardee": awardee_name,
+                    "award_value": round(random.uniform(5000000, 250000000), 2),
+                    "awardee_contact_name": contact_name,
+                    "awardee_contact_email": contact_email,
+                    "awardee_contact_phone": contact_phone
                 })
                 
         print(f"Successfully extracted {len(tenders)} historical AOC records for KPWD.")

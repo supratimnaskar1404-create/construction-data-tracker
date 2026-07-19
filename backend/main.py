@@ -54,6 +54,9 @@ class TenderSchema(BaseModel):
     status: str
     awardee: Optional[str] = None
     award_value: Optional[float] = None
+    awardee_contact_name: Optional[str] = None
+    awardee_contact_email: Optional[str] = None
+    awardee_contact_phone: Optional[str] = None
 
     class Config:
         from_attributes = True
