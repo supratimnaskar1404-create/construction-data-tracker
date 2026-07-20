@@ -5,6 +5,13 @@ from typing import List
 from pydantic import BaseModel
 from datetime import date
 from typing import Optional
+from .scrapers.nicgep import NICGEPScraper
+from .scrapers.nhai import NHAIScraper
+from .scrapers.cpwd import CPWDScraper
+from .scrapers.kpwd import KPWDScraper
+from .scrapers.maharashtra import MaharashtraScraper
+from .scrapers.up import UPScraper
+from .scrapers.tn import TNScraper
 
 from . import models
 from .database import engine, get_db
@@ -20,6 +27,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize scrapers
+scrapers = [
+    NICGEPScraper(base_url="https://eprocure.gov.in/eprocure/app", agency_name="eProcure Central"),
+    NHAIScraper(),
+    CPWDScraper(),
+    KPWDScraper(),
+    MaharashtraScraper(),
+    UPScraper(),
+    TNScraper()
+]
 
 class ContractSchema(BaseModel):
     id: int
