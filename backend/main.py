@@ -111,32 +111,48 @@ def reset_database(db: Session = Depends(get_db)):
 def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_db)):
     agencies_to_scrape = []
     if agency.lower() == "all":
-        agencies_to_scrape = ["eprocure", "nhai", "cpwd", "kpwd"]
+        agencies_to_scrape = ["eprocure", "nhai", "cpwd", "kpwd", "mahatenders", "uptenders", "tntenders"]
     else:
-        agencies_to_scrape = [agency.lower()]
+        agencies_to_scrape = [agency.lower().replace(' ', '')]
         
     total_scraped = 0
+    errors = []
+    
     for ag in agencies_to_scrape:
-        if ag == "eprocure":
+        if "eprocure" in ag:
             from .scrapers.eprocure import EProcureScraper
             scraper = EProcureScraper()
-        elif ag == "nhai":
+        elif "nhai" in ag:
             from .scrapers.nhai import NHAIScraper
             scraper = NHAIScraper()
-        elif ag == "cpwd":
+        elif "cpwd" in ag:
             from .scrapers.cpwd import CPWDScraper
             scraper = CPWDScraper()
-        elif ag == "kpwd":
+        elif "kpwd" in ag:
             from .scrapers.kpwd import KPWDScraper
             scraper = KPWDScraper()
+        elif "mahatenders" in ag:
+            from .scrapers.maharashtra import MaharashtraScraper
+            scraper = MaharashtraScraper()
+        elif "uptenders" in ag:
+            from .scrapers.up import UPScraper
+            scraper = UPScraper()
+        elif "tntenders" in ag:
+            from .scrapers.tn import TNScraper
+            scraper = TNScraper()
         else:
             continue
             
         try:
+            tenders = scraper.scrape_active_tenders()
+            
             if months_back > 0:
-                tenders = scraper.scrape_awarded_tenders(months_back=months_back)
-            else:
-                tenders = scraper.scrape_active_tenders()
+                try:
+                    awarded = scraper.scrape_awarded_tenders(months_back=months_back)
+                    tenders.extend(awarded)
+                except Exception as e:
+                    print(f"Failed awarded OCR for {ag}: {e}")
+                    errors.append(f"{ag} (Awarded): {str(e)}")
             
             # Save to DB
             seen_refs = set()
@@ -151,7 +167,13 @@ def trigger_scrape(agency: str, months_back: int = 0, db: Session = Depends(get_
                     db.add(db_tender)
             db.commit()
             total_scraped += len(tenders)
+            if len(tenders) == 0:
+                 errors.append(f"{ag}: Returned 0 results (possible OCR/blocking issue)")
         except Exception as e:
             print(f"Failed to scrape {ag}: {e}")
+            errors.append(f"{ag}: {str(e)}")
             
-    return {"message": f"Scraped {total_scraped} tenders across {len(agencies_to_scrape)} agencies"}
+    return {
+        "message": f"Scraped {total_scraped} tenders across {len(agencies_to_scrape)} agencies",
+        "errors": errors
+    }
