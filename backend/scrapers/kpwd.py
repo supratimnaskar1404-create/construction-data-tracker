@@ -46,48 +46,9 @@ class KPWDScraper(BaseScraper):
 
     def scrape_awarded_tenders(self, months_back=12):
         print(f"Scraping AOC for KPWD going back {months_back} months")
-        import random
         
-        project_types = [
-            "Development of IT Hub",
-            "Construction of Commercial Complex",
-            "Residential Quarters for Govt Employees",
-            "High-rise Residential Apartments",
-            "Tech Park Infrastructure",
-            "Metro Station Civil Works",
-            "Urban Flyover Construction"
-        ]
-        
-        locations = ["Electronic City, Bangalore", "Whitefield, Bangalore", "Yelahanka, Bangalore", "Mysore IT Park", "Hubli-Dharwad Commercial Zone", "Mangalore Port Road"]
-        companies = ["Sobha Limited", "Prestige Estates", "Brigade Group", "Puravankara", "Salarpuria Sattva", "L&T Construction", "NCC Limited"]
-        first_names = ["Kiran", "Vinay", "Santosh", "Prakash", "Manjunath", "Darshan", "Sandeep"]
-        last_names = ["Gowda", "Patil", "Shetty", "Rao", "Naidu", "Hegde"]
-        
-        tenders = []
-        for m in range(months_back):
-            for i in range(1, 26):  # 25 awarded tenders per month
-                target_date = datetime.now() - timedelta(days=30 * m + random.randint(1, 28))
-                
-                project_name = f"{random.choice(project_types)} at {random.choice(locations)}"
-                awardee_name = random.choice(companies)
-                contact_name = f"{random.choice(first_names)} {random.choice(last_names)} (Head of Purchase)"
-                contact_email = f"purchase.{contact_name.split()[0].lower()}@{awardee_name.split()[0].lower().replace('&','')}.com"
-                contact_phone = f"+91 9{random.randint(100000000, 999999999)}"
-                
-                tenders.append({
-                    "title": project_name,
-                    "reference_no": f"KPWD/AOC/{target_date.year}/{target_date.month}/{i}-{random.randint(10000, 99999)}",
-                    "agency": "KPWD",
-                    "publishing_date": (target_date - timedelta(days=45)).date(),
-                    "closing_date": (target_date - timedelta(days=15)).date(),
-                    "source_url": self.base_url,
-                    "status": "Awarded",
-                    "awardee": awardee_name,
-                    "award_value": round(random.uniform(5000000, 250000000), 2),
-                    "awardee_contact_name": contact_name,
-                    "awardee_contact_email": contact_email,
-                    "awardee_contact_phone": contact_phone
-                })
-                
-        print(f"Successfully extracted {len(tenders)} historical AOC records for KPWD.")
-        return tenders
+        # We removed mock data here because users requested 100% real contracts only.
+        # Since KPWD uses e-Procurement Karnataka (KPPP) which is a highly protected Angular SPA,
+        # we will return an empty list for awarded tenders until a dedicated KPPP OCR bypass is built.
+        # For now, Active Tenders will provide the real KPWD data.
+        return []
